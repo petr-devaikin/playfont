@@ -2,19 +2,43 @@ from flask import Flask, render_template, request, url_for
 import requests
 import bs4
 import urlparse
+import random
 
-app = Flask(__name__)
+app = Flask(__name__, instance_relative_config=True)
+app.config.from_pyfile('application.cfg', silent=True)
+
+def get_all_fonts():
+    url = r'https://www.googleapis.com/webfonts/v1/webfonts?fields=items(family%2Csubsets)&key=' + \
+        app.config['GOOGLE_KEY']
+    r = requests.get(url)
+    return [ f['family'] for f in r.json()['items'] if 'cyrillic' in f['subsets'] ]
 
 @app.route('/')
 def index():
-    url = request.args.get('url', None)
-    return render_template('index.html', url=url)
+    url = request.args.get('url', '')
+    if url:
+        if url[:5] != 'http:' and url[:6] != 'https:':
+            url = 'http://' + url
+
+    return render_template('index.html', url=url, fonts=get_all_fonts())
+
+def get_random_style(fonts):
+    result = ''
+    result += '; font-family: ' + random.choice(fonts)
+    result += '; font-weight: ' + random.choice(('normal', 'bold', 'bolder', 'lighter'))
+    result += '; font-style: ' + random.choice(('normal', 'italic'))
+    result += '; font-style: ' + random.choice(('normal', 'italic'))
+    result += '; font-size: ' + random.choice(('small', 'medium', 'large'))
+    result += '; text-shadow: 4px 4px 4px #aaa;'
+    return result
 
 @app.route('/render')
 def render():
+    fonts = get_all_fonts()
+
     url = request.args.get('url', None)
-    print url
     if url != None:
+        print url
         r = requests.get(url)
         print r.status_code
 
@@ -26,7 +50,7 @@ def render():
                     el[attr] = urlparse.urljoin(url, el[attr])
                     if render_url:
                         el[attr] = url_for('.index', url=el[attr])
-                        el['style'] = "font-size: 60px"
+                        el['style'] = el.get('style', '') + get_random_style(fonts)
                 except KeyError: pass
             return change_el
 
@@ -44,7 +68,7 @@ def render():
 
         return soup.prettify()
     else:
-        return "hello"
+        return "hello world!"
 
 
 if __name__ == '__main__':
