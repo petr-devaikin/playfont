@@ -10,5 +10,5 @@ setup(
     include_package_data=True,
     zip_safe=False,
     setup_requires=['Flask'],
-    install_requires=['Flask']
+    install_requires=['Flask', 'requests', 'beautifulsoup4']
 )

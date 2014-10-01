@@ -2,7 +2,7 @@
 <html>
     <head>
         <title>Поиграться со шрифтиками</title>
-        <link rel="stylesheet" type="text/css" href="./css/main.css">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
     </head>
     <body>
         <div id="search-form">
@@ -12,10 +12,12 @@
             </form>
         </div>
         <div id="content">
-            <iframe src="http://www.w3schools.com/" id='content-frame'></iframe>
+            {% if url != None %}
+                <iframe src="{{ url_for('.render', url=url) }}" id='content-frame'></iframe>
+            {% endif %}
         </div>
 
         <script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
-        <script src="./js/main.js"></script>
+        <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     </body>
 </html>

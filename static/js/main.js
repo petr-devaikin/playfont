@@ -6,8 +6,3 @@ function parseUrl(val) {
     });
     return result;
 }
-
-$(document).ready(function() {
-    var body = $('#content-frame').contents().find('body');
-    $("a", body).css("color", "red");
-});
