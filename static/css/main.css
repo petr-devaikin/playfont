@@ -33,26 +33,6 @@
     width: 250px;
 }
 
-#likes {
-    position: absolute;
-    left: 15px;
-    top: 18px;
-}
-
-#likes div {
-    position: relative;
-    float: left;
-    clear: none !important;
-}
-
-.twitter-share-button {
-    margin-left: 10px;
-}
-
-#vk_like {
-    margin-left: 10px;
-}
-
 #content {
     position: absolute;
     left: 0px;
