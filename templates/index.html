@@ -1,11 +1,13 @@
 <!doctype html>
 <html>
     <head>
-        <title>Поиграться со шрифтиками</title>
+        <title>Поиграться со шрифтиками!</title>
+        <meta name="Discription" content="Здесь вы можете поиграться со шрифтиками!" />
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}" />
     </head>
     <body>
-        <div id="search-form" class="{{ 'to-top' if url else '' }}">
+        <div id="search-form" class="{{ 'to-top' if url else '' }}"
+            style="background:url('{{ bg if url else '' }}')">
             <form method="GET">
                 <input name="url" value="{{ url }}" placeholder="Адрес сайта" id="url" />
                 <input type="submit" value="Поиграться со шрифтиками!" />

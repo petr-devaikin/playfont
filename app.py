@@ -43,6 +43,14 @@ def explore_tree(soup, root, fonts):
             child.replace_with(new_tag)
 
 
+def get_background():
+    try:
+        r = requests.get("http://www.colourlovers.com/api/patterns/top?format=json")
+        return random.choice(r.json())['imageUrl']
+    except requests.ConnectionError:
+        return ""
+
+
 @app.route('/')
 def index():
     url = request.args.get('url', '')
@@ -50,7 +58,9 @@ def index():
         if url[:5] != 'http:' and url[:6] != 'https:':
             url = 'http://' + url
 
-    return render_template('index.html', url=url)
+    bg = get_background()
+
+    return render_template('index.html', url=url, bg=bg)
 
 
 @app.route('/render')
