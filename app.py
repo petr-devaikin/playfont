@@ -3,8 +3,10 @@ import requests
 import bs4
 import urlparse
 import random
+import os
 
 app = Flask(__name__, instance_relative_config=True)
+app.config.setdefault('GOOGLE_KEY', os.environ.get('GOOGLE_KEY'))
 app.config.from_pyfile('application.cfg', silent=True)
 
 
