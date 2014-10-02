@@ -10,6 +10,9 @@
     right: 0px;
     height: 34px;
     padding: 10px;
+}
+
+#search-form form {
     text-align: center;
 }
 
@@ -28,6 +31,22 @@
 
 #url {
     width: 250px;
+}
+
+#likes {
+    position: absolute;
+    left: 10px;
+    top: 15px;
+}
+
+#likes div {
+    position: relative;
+    float: left;
+}
+
+.twitter-share-button {
+    position: relative;
+    margin-left: 10px;
 }
 
 #content {
