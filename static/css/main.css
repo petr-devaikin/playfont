@@ -35,17 +35,21 @@
 
 #likes {
     position: absolute;
-    left: 10px;
-    top: 15px;
+    left: 15px;
+    top: 18px;
 }
 
 #likes div {
     position: relative;
     float: left;
+    clear: none !important;
 }
 
 .twitter-share-button {
-    position: relative;
+    margin-left: 10px;
+}
+
+#vk_like {
     margin-left: 10px;
 }
 
