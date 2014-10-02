@@ -38,7 +38,8 @@ def explore_tree(soup, root, fonts):
     for child in root.children:
         if type(child) == bs4.Tag:
             explore_tree(soup, child, fonts)
-        elif type(child) == bs4.NavigableString:
+        elif type(child) == bs4.NavigableString and not root.name in ('style', 'script') and \
+                                                                    child.string.strip() != '':
             new_tag = soup.new_tag('span', style=get_random_style(fonts))
             #new_tag['class'] = 'font-effect-' + random.choice(font_effects)
             new_tag.append(child.string[:])
@@ -108,7 +109,7 @@ def render():
             head.append(base_tag)
             head.append(font_link)
             
-            return soup.prettify()
+            return str(soup)
     else:
         return render_template('error.html')
 
