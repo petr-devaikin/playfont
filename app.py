@@ -7,17 +7,20 @@ import random
 app = Flask(__name__, instance_relative_config=True)
 app.config.from_pyfile('application.cfg', silent=True)
 
+
 font_effects = ('anaglyph', 'brick-sign', 'canvas-print', 'crackle', 'decaying', 'destruction', 
     'distressed', 'distressed-wood', 'emboss', 'fire', 'fire-animation', 'fragile', 'grass',
     'font-effect-ice', 'font-effect-mitosis', 'font-effect-neon', 'font-effect-outline',
     'putting-green', 'scuffed-steel', 'shadow-multiple', 'font-effect-splintered',
     'font-effect-static', 'stonewash', '3d', '3d-float', 'vintage')
 
+
 def get_all_fonts():
     url = r'https://www.googleapis.com/webfonts/v1/webfonts?fields=items(family%2Csubsets)&key='
     url += app.config['GOOGLE_KEY']
     r = requests.get(url)
     return [ f['family'] for f in r.json()['items'] if 'cyrillic' in f['subsets'] ]
+
 
 def get_random_style(fonts):
     result = ''
@@ -34,12 +37,10 @@ def explore_tree(soup, root, fonts):
         if type(child) == bs4.Tag:
             explore_tree(soup, child, fonts)
         elif type(child) == bs4.NavigableString:
-            #class=new_class, 
             new_tag = soup.new_tag('span', style=get_random_style(fonts))
             #new_tag['class'] = 'font-effect-' + random.choice(font_effects)
             new_tag.append(child.string[:])
             child.replace_with(new_tag)
-        
 
 
 @app.route('/')
@@ -49,7 +50,7 @@ def index():
         if url[:5] != 'http:' and url[:6] != 'https:':
             url = 'http://' + url
 
-    return render_template('index.html', url=url, fonts=get_all_fonts(), effects=font_effects)
+    return render_template('index.html', url=url)
 
 
 @app.route('/render')
@@ -58,45 +59,46 @@ def render():
 
     url = request.args.get('url', None)
     if url != None:
-        print url
-        r = requests.get(url)
-        print r.status_code
+        try:
+            r = requests.get(url)
+        except requests.ConnectionError:
+            return render_template('error.html')
+        else:
+            soup = bs4.BeautifulSoup(r.content)
+            
+            def true_url(attr, render_url=False):
+                def change_el(el):
+                    try:
+                        el[attr] = urlparse.urljoin(url, el[attr])
+                        if render_url:
+                            el[attr] = url_for('.index', url=el[attr])
+                    except KeyError: pass
+                return change_el
 
-        soup = bs4.BeautifulSoup(r.content)
-        
-        def true_url(attr, render_url=False):
-            def change_el(el):
-                try:
-                    el[attr] = urlparse.urljoin(url, el[attr])
-                    if render_url:
-                        el[attr] = url_for('.index', url=el[attr])
-                except KeyError: pass
-            return change_el
+            map(true_url('href'), soup.find_all('link'))
+            map(true_url('href', render_url=True), soup.find_all('a'))
+            map(true_url('src'), soup.find_all('img'))
+            map(true_url('src'), soup.find_all('script'))
 
-        map(true_url('href'), soup.find_all('link'))
-        map(true_url('href', render_url=True), soup.find_all('a'))
-        map(true_url('src'), soup.find_all('img'))
-        map(true_url('src'), soup.find_all('script'))
+            body = soup.find('body')
+            if not body:
+                body = soup
 
-        body = soup.find('body')
-        if not body:
-            body = soup
+            explore_tree(soup, body, fonts)
+            
+            base_tag = soup.new_tag('base', target='_parent')
+            font_link = soup.new_tag('link', rel='stylesheet', type='text/css',
+                href='http://fonts.googleapis.com/css?family={0}&effect={1}'.format('|'.join(fonts), '|'.join(font_effects)))
 
-        explore_tree(soup, body, fonts)
-        
-        base_tag = soup.new_tag('base', target='_parent')
-        font_link = soup.new_tag('link', rel='stylesheet', type='text/css',
-            href='http://fonts.googleapis.com/css?family={0}&effect={1}'.format('|'.join(fonts), '|'.join(font_effects)))
-
-        head = soup.find('head')
-        if not head:
-            head = soup
-        head.append(base_tag)
-        head.append(font_link)
-        
-        return soup.prettify()
+            head = soup.find('head')
+            if not head:
+                head = soup
+            head.append(base_tag)
+            head.append(font_link)
+            
+            return soup.prettify()
     else:
-        return "hello world!"
+        return render_template('error.html')
 
 
 if __name__ == '__main__':

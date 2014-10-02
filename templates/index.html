@@ -5,19 +5,18 @@
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}" />
     </head>
     <body>
-        <div id="search-form">
+        <div id="search-form" class="{{ 'to-top' if url else '' }}">
             <form method="GET">
-                <input name="url" value="{{ url }}" />
+                <input name="url" value="{{ url }}" placeholder="Адрес сайта" id="url" />
                 <input type="submit" value="Поиграться со шрифтиками!" />
             </form>
         </div>
-        <div id="content">
-            {% if url %}
-                <iframe src="{{ url_for('.render', url=url) }}" id='content-frame'></iframe>
-            {% endif %}
-        </div>
-
-        <script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
-        <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+        {% if url %}
+            <div id="content">
+                {% if url %}
+                    <iframe src="{{ url_for('.render', url=url) }}" id='content-frame'></iframe>
+                {% endif %}
+            </div>
+        {% endif %}
     </body>
 </html>
